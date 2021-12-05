@@ -4,14 +4,14 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class SettingsGame extends JFrame {
 
     private static final int MIN_WIN_LENGTH = 3;
     private static final int MIN_FIELD_SIZE = 3;
-    private static final int MAX_FIELD_SIZE = 10;
-    private static final String FIELD_SIZE_PREFIX = "Field size: ";
-    private static final String WIN_LENGTH_PREFIX = "Win length: ";
+    private static final int MAX_FIELD_SIZE = 8;
 
     private final JRadioButton humanVsAi;
     private final JRadioButton humanVsHuman;
@@ -24,13 +24,12 @@ public class SettingsGame extends JFrame {
         this.gameWindow = gameWindow;
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setSize(gameWindow.getWidth()/2, gameWindow.getHeight());
-        setTitle("Settings");
-        setLocation(gameWindow.getX()+gameWindow.getWidth(),gameWindow.getY());
         setResizable(false);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(11,1));
-
+        panel.setLayout(new GridLayout(14,1));
+        panel.add(new JLabel(" "));
+        panel.add(new JLabel(" "));
         panel.add(new JLabel(" Choose game mode:"));
         ButtonGroup gameMode = new ButtonGroup();
         humanVsAi = new JRadioButton(" Human versus AI", true);
@@ -39,39 +38,49 @@ public class SettingsGame extends JFrame {
         gameMode.add(humanVsHuman);
         panel.add(humanVsAi);
         panel.add(humanVsHuman);
+        panel.add(new JLabel(""));
 
-        JLabel labelFieldSize = new JLabel(" "+FIELD_SIZE_PREFIX + MIN_FIELD_SIZE);
-        JLabel labelWinLength = new JLabel(" "+WIN_LENGTH_PREFIX + MIN_WIN_LENGTH);
+        JLabel labelFieldSize = new JLabel(" Choose field size: " + MIN_FIELD_SIZE);
         sliderFieldSize = new JSlider(MIN_FIELD_SIZE, MAX_FIELD_SIZE, MIN_FIELD_SIZE);
-        sliderWinLength = new JSlider(MIN_WIN_LENGTH, MAX_FIELD_SIZE, MIN_WIN_LENGTH);
         sliderFieldSize.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 int currentValue = sliderFieldSize.getValue();
-                labelFieldSize.setText(" " + FIELD_SIZE_PREFIX + currentValue);
+                labelFieldSize.setText(" Choose field size: " + currentValue);
                 sliderWinLength.setMaximum(currentValue);
+                switch (currentValue) {
+                    case 3 -> sliderWinLength.setMinimum(3);
+                    case 4,5 -> sliderWinLength.setMinimum(4);
+                        default -> sliderWinLength.setMinimum(currentValue - 2);
+                }
             }
         });
-        sliderWinLength.addChangeListener(
-                e -> labelWinLength.setText(" " + WIN_LENGTH_PREFIX + sliderWinLength.getValue())
-        );
-
-        panel.add(new JLabel(" Choose field size:"));
         panel.add(labelFieldSize);
         panel.add(sliderFieldSize);
-        panel.add(new JLabel(" Choose win length:"));
+        panel.add(new JLabel(""));
+
+        JLabel labelWinLength = new JLabel(" Choose win length: " + MIN_WIN_LENGTH);
+        sliderWinLength = new JSlider(MIN_WIN_LENGTH, MIN_WIN_LENGTH, MIN_WIN_LENGTH);
+        sliderWinLength.addChangeListener(
+               e -> labelWinLength.setText(" Choose win length: " + sliderWinLength.getValue())
+        );
         panel.add(labelWinLength);
         panel.add(sliderWinLength);
+        panel.add(new JLabel(""));
 
         JButton btnSave = new JButton("Save new settings");
         btnSave.addActionListener(e -> saveSettings());
         JButton btnCancel = new JButton("Return default settings");
         btnCancel.addActionListener(e -> defaultSettings());
-
         panel.add(btnSave);
         panel.add(btnCancel);
 
         add(panel, BorderLayout.CENTER);
+        addComponentListener (new ComponentAdapter() {
+            public void componentMoved (ComponentEvent e) {
+                setLocation(gameWindow.getX()+gameWindow.getWidth(),gameWindow.getY());
+            }
+        });
     }
 
     private void saveSettings() {
@@ -87,5 +96,8 @@ public class SettingsGame extends JFrame {
         sliderFieldSize.setValue(MIN_FIELD_SIZE);
         gameWindow.setNewWinLength(MIN_WIN_LENGTH);
         sliderWinLength.setValue(MIN_WIN_LENGTH);
+    }
+    void changeLocation() {
+        setLocation(gameWindow.getX()+gameWindow.getWidth(),gameWindow.getY());
     }
 }

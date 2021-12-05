@@ -2,6 +2,8 @@ package TicTacToe_Lada303;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 
 public class GameWindow extends JFrame {
@@ -34,11 +36,19 @@ public class GameWindow extends JFrame {
         SettingsGame settingsGame = new SettingsGame(this);
         settingsGame.defaultSettings();
 
-        btnSettings.addActionListener((e) -> settingsGame.setVisible(!settingsGame.isVisible()));
+        btnSettings.addActionListener((e) -> {
+            settingsGame.changeLocation();
+            settingsGame.setVisible(!settingsGame.isVisible());
+        });
         btnStartGame.addActionListener(e -> gameMap.startNewGame(this));
         btnExitGame.addActionListener(e -> System.exit(0));
 
         setVisible(true);
+        addComponentListener (new ComponentAdapter() {
+            public void componentMoved (ComponentEvent e) {
+                settingsGame.changeLocation();
+            }
+        });
     }
 
     public void setNewModeGame(int mode) {
