@@ -2,4 +2,5 @@
 
 Game of tic-tac-toe. Implemented using the javax.swing package
 
-Homework sounded like writing a desktop game. There was no technical task. Completely independent development and implementation.
+Задание по завершению курса Java.level1.GeekBrains - сделать игру крестики-нолики
+
